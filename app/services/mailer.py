@@ -62,6 +62,10 @@ def _send_via_resend(lead, cfg):
         headers={
             "Authorization": "Bearer " + cfg["RESEND_API_KEY"],
             "Content-Type": "application/json",
+            # A API do Resend fica atrás da Cloudflare, que bloqueia o
+            # User-Agent padrão do urllib (resulta em 403 / erro 1010).
+            "User-Agent": "AllWeCore-Site/1.0",
+            "Accept": "application/json",
         },
         method="POST",
     )

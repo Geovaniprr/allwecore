@@ -13,7 +13,7 @@ Edite os textos **depois do `→`** (ou entre aspas). Não precisa mexer nos có
 - `[BRAND-NAME]` Nome exibido → **All We Core**
 - `[BRAND-TAGLINE]` Slogan (rodapé) → **Tecnologia, IA e Marketing para impulsionar negócios.**
 - `[BRAND-WHATSAPP]` WhatsApp (só números, com DDI/DDD) → **5511971446403**
-- `[BRAND-EMAIL]` E-mail de contato exibido → **alcorasolution@gmail.com**
+- `[BRAND-EMAIL]` E-mail de contato exibido → **allwecore@gmail.com**
 
 ---
 
