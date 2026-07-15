@@ -7,3 +7,8 @@ leads.csv
 instance/
 .DS_Store
 *.log
+
+# Material de marca (nao publicar)
+Identidade visual.png
+*.png
+!app/static/images/*.png
