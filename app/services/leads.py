@@ -1,10 +1,11 @@
 """Persistência de leads.
 
-MVP: grava em CSV local + registra no log (PRD: sem painel admin próprio).
-Fase 2: trocar `save_lead` por envio a serviço externo / CRM (webhook, e-mail).
-A interface pública (`save_lead`) permanece a mesma — os templates/rotas não mudam.
+- Local: grava em CSV (abre no Excel) + log.
+- Serverless (Vercel): não há disco persistente — o CSV é pulado e o lead
+  fica registrado no log (recuperável) além do e-mail enviado pelo mailer.
 """
 import csv
+import os
 import logging
 from datetime import datetime, timezone
 
@@ -13,6 +14,19 @@ from flask import current_app
 logger = logging.getLogger(__name__)
 
 FIELDNAMES = ["timestamp", "name", "contact", "service", "message", "source"]
+
+# Vercel/Lambda expõem esta variável e têm sistema de arquivos somente-leitura.
+IS_SERVERLESS = bool(os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
+
+
+def _append_csv(lead):
+    path = current_app.config["LEADS_FILE"]
+    write_header = not path.exists()
+    with open(path, "a", newline="", encoding="utf-8") as fh:
+        writer = csv.DictWriter(fh, fieldnames=FIELDNAMES)
+        if write_header:
+            writer.writeheader()
+        writer.writerow(lead)
 
 
 def save_lead(name, contact, service, message, source="site"):
@@ -26,18 +40,16 @@ def save_lead(name, contact, service, message, source="site"):
         "source": source,
     }
 
-    path = current_app.config["LEADS_FILE"]
-    write_header = not path.exists()
-    try:
-        with open(path, "a", newline="", encoding="utf-8") as fh:
-            writer = csv.DictWriter(fh, fieldnames=FIELDNAMES)
-            if write_header:
-                writer.writeheader()
-            writer.writerow(lead)
-    except OSError:
-        # Nunca perder o lead: se o arquivo falhar, ao menos fica no log.
-        logger.exception("Falha ao gravar lead em arquivo")
+    if not IS_SERVERLESS:
+        try:
+            _append_csv(lead)
+        except OSError:
+            # Nunca perder o lead: se o arquivo falhar, ao menos fica no log.
+            logger.exception("Falha ao gravar lead em arquivo")
 
-    logger.info("Novo lead recebido: %s (%s)", lead["name"], lead["contact"])
-    # TODO(Fase 2): notificar o time (e-mail/WhatsApp) e enviar ao CRM.
+    # Sempre registra: é a rede de segurança quando não há disco (serverless).
+    logger.info(
+        "NOVO LEAD | nome=%s | contato=%s | servico=%s | origem=%s",
+        lead["name"], lead["contact"], lead["service"], lead["source"],
+    )
     return lead

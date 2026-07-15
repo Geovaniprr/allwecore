@@ -22,12 +22,18 @@ class Config:
     # Leads (MVP: CSV local — mantido como backup mesmo com e-mail)
     LEADS_FILE = BASE_DIR / os.environ.get("LEADS_FILE", "leads.csv")
 
-    # Envio de e-mail de lead (Gmail SMTP)
+    # Destino dos leads
+    LEAD_TO = os.environ.get("LEAD_TO", "alcorasolution@gmail.com")
+
+    # Envio via Resend (API HTTP) — usado em produção/serverless. Tem prioridade.
+    RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
+    LEAD_FROM = os.environ.get("LEAD_FROM", "All We Core <onboarding@resend.dev>")
+
+    # Envio via Gmail SMTP — fallback para desenvolvimento local.
     SMTP_HOST = os.environ.get("SMTP_HOST", "smtp.gmail.com")
     SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
     SMTP_USER = os.environ.get("SMTP_USER", "")            # ex.: alcorasolution@gmail.com
     SMTP_PASS = os.environ.get("SMTP_PASS", "")            # senha de app do Gmail (16 dígitos)
-    LEAD_TO = os.environ.get("LEAD_TO", "alcorasolution@gmail.com")  # destino dos leads
 
     WTF_CSRF_ENABLED = True
 
