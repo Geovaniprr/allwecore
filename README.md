@@ -29,7 +29,7 @@ pip install -r requirements.txt
 copy .env.example .env       # e preencha SECRET_KEY etc.
 python run.py
 ```
-Acesse http://127.0.0.1:5000
+Acesse https://allwecore.vercel.app
 
 ## Onde editar
 - **Conteúdo (serviços, FAQ, processo, valores):** `app/services/catalog.py` — fonte única de verdade.
